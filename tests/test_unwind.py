@@ -13,6 +13,7 @@ void free(char *ptr);
 
 int tbreporter_get_tb(void** result, int max_depth, ucontext_t *ucontext);
 char *format_addr(void* sym);
+char *serialize_traceback();
 
 int wrapper(void** result, int max_depth, ucontext_t *ucontext);
 """)
@@ -39,3 +40,9 @@ def test_get_tb():
         lib.free(res)
     assert "python PyEval_EvalFrameEx" in all_syms
     assert "python PyEval_EvalCodeEx" in all_syms
+
+def test_serialize_tb():
+    ll_res = lib.serialize_traceback()
+    res = ffi.string(ll_res)
+    lib.free(ll_res)
+    assert ("python PyEval_EvalFrameEx\npython PyEval_EvalFrameEx" in res)
